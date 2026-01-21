@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1>📚 Library Management System</h1>
+            <nav id="userInfo">
+                <a href="/login.html">Login</a>
+                <a href="/register.html">Register</a>
+            </nav>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard">
+            <h2 class="text-center mb-2">Welcome to the Library Management System</h2>
+            
+            <div id="alert" class="alert"></div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <p>Loading...</p>
+            </div>
+
+            <div id="guestView">
+                <div class="card">
+                    <div class="card-header">Browse Our Collection</div>
+                    <p>Discover thousands of books in our library. Login or register to borrow books and manage your account.</p>
+                    <div class="mt-2">
+                        <a href="/login.html" class="btn btn-primary">Login</a>
+                        <a href="/register.html" class="btn btn-success">Register</a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Search Books</div>
+                    <div class="search-bar">
+                        <input type="text" id="searchTerm" placeholder="Search by title, author, or ISBN...">
+                        <select id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="Programming">Programming</option>
+                            <option value="Software Engineering">Software Engineering</option>
+                            <option value="Database">Database</option>
+                            <option value="Web Development">Web Development</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="searchBooks()">Search</button>
+                    </div>
+
+                    <div id="booksContainer" class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Category</th>
+                                    <th>Available</th>
+                                </tr>
+                            </thead>
+                            <tbody id="booksTable">
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading books...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="memberView" class="hidden">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <h3 id="issuedBooksCount">0</h3>
+                        <p>Books Issued</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="pendingFinesCount">0</h3>
+                        <p>Pending Fines</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Quick Actions</div>
+                    <a href="/member-dashboard.html" class="btn btn-primary">View My Books</a>
+                    <a href="/member-dashboard.html" class="btn btn-warning">Manage Fines</a>
+                </div>
+            </div>
+
+            <div id="librarianView" class="hidden">
+                <div class="card">
+                    <div class="card-header">Librarian Dashboard</div>
+                    <p>Manage book issues, returns, and fines.</p>
+                    <a href="/librarian-dashboard.html" class="btn btn-primary mt-1">Go to Dashboard</a>
+                </div>
+            </div>
+
+            <div id="adminView" class="hidden">
+                <div class="card">
+                    <div class="card-header">Admin Dashboard</div>
+                    <p>Manage library inventory, users, and view reports.</p>
+                    <a href="/admin-dashboard.html" class="btn btn-primary mt-1">Go to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        async function loadBooks() {
+            try {
+                showLoading(true);
+                const books = await apiRequest('/Books');
+                displayBooks(books);
+            } catch (error) {
+                showAlert('Failed to load books: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function searchBooks() {
+            const searchTerm = document.getElementById('searchTerm').value;
+            const category = document.getElementById('categoryFilter').value;
+
+            try {
+                showLoading(true);
+                let url = '/Books/search?';
+                if (searchTerm) url += `searchTerm=${encodeURIComponent(searchTerm)}&`;
+                if (category) url += `category=${encodeURIComponent(category)}`;
+
+                const books = await apiRequest(url);
+                displayBooks(books);
+            } catch (error) {
+                showAlert('Failed to search books: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayBooks(books) {
+            const tbody = document.getElementById('booksTable');
+            
+            if (books.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center">No books found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = books.map(book => `
+                <tr>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.category || 'N/A'}</td>
+                    <td>${book.availableCopies} / ${book.totalCopies}</td>
+                </tr>
+            `).join('');
+        }
+
+        function initializePage() {
+            const auth = getAuth();
+
+            if (auth.user) {
+                document.getElementById('guestView').classList.add('hidden');
+
+                if (auth.user.role === 'Admin') {
+                    document.getElementById('adminView').classList.remove('hidden');
+                } else if (auth.user.role === 'Librarian') {
+                    document.getElementById('librarianView').classList.remove('hidden');
+                } else if (auth.user.role === 'Member') {
+                    document.getElementById('memberView').classList.remove('hidden');
+                    loadMemberStats();
+                }
+            }
+
+            loadBooks();
+        }
+
+        async function loadMemberStats() {
+            try {
+                const auth = getAuth();
+                const issues = await apiRequest(`/Issues/user/${auth.user.userId}`);
+                const fines = await apiRequest(`/Fines/user/${auth.user.userId}`);
+
+                const activeIssues = issues.filter(i => i.status === 'Issued');
+                const pendingFines = fines.filter(f => f.status === 'Pending');
+
+                document.getElementById('issuedBooksCount').textContent = activeIssues.length;
+                document.getElementById('pendingFinesCount').textContent = `$${pendingFines.reduce((sum, f) => sum + f.amount, 0).toFixed(2)}`;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePage);
+    </script>
+</body>
+</html>
