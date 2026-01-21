@@ -21,6 +21,8 @@ builder.Services.AddCors(options =>
             builder.AllowAnyOrigin()
                    .AllowAnyMethod()
                    .AllowAnyHeader();
+            // NOTE: In production, restrict to specific origins:
+            // builder.WithOrigins("https://yourdomain.com")
         });
 });
 

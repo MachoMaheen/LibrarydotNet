@@ -52,7 +52,7 @@ function requireRole(role) {
     if (!requireAuth()) return false;
     if (!hasRole(role)) {
         alert('You do not have permission to access this page.');
-        window.location.href = '/index.html';
+        window.location.href = '/';
         return false;
     }
     return true;
