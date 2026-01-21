@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Dashboard - Library Management System</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1>📚 Library Management System</h1>
+            <nav id="userInfo"></nav>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard">
+            <h2 class="mb-2">Librarian Dashboard</h2>
+            
+            <div id="alert" class="alert"></div>
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Issue Book</div>
+                <form id="issueForm" onsubmit="handleIssueBook(event)" class="mt-1">
+                    <div class="form-group">
+                        <label for="bookId">Book ID *</label>
+                        <input type="number" id="bookId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="userId">User ID *</label>
+                        <input type="number" id="userId" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dueDays">Due Days *</label>
+                        <input type="number" id="dueDays" value="14" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Issue Book</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Return Book</div>
+                <form id="returnForm" onsubmit="handleReturnBook(event)" class="mt-1">
+                    <div class="form-group">
+                        <label for="issueId">Issue ID *</label>
+                        <input type="number" id="issueId" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Return Book</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Active Issues</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Issue ID</th>
+                                <th>Book</th>
+                                <th>User</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="issuesTable">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">All Fines</div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fine ID</th>
+                                <th>User</th>
+                                <th>Book</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody id="finesTable">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+    <script>
+        if (!requireRole('Librarian') && !requireRole('Admin')) {
+            // Will redirect
+        }
+
+        async function handleIssueBook(event) {
+            event.preventDefault();
+
+            const data = {
+                bookId: parseInt(document.getElementById('bookId').value),
+                userId: parseInt(document.getElementById('userId').value),
+                dueDays: parseInt(document.getElementById('dueDays').value)
+            };
+
+            try {
+                showLoading(true);
+                await apiRequest('/Issues/issue', 'POST', data);
+                showAlert('Book issued successfully!', 'success');
+                document.getElementById('issueForm').reset();
+                loadDashboard();
+            } catch (error) {
+                showAlert('Failed to issue book: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function handleReturnBook(event) {
+            event.preventDefault();
+
+            const issueId = parseInt(document.getElementById('issueId').value);
+
+            try {
+                showLoading(true);
+                const result = await apiRequest('/Issues/return', 'POST', { issueId });
+                
+                let message = 'Book returned successfully!';
+                if (result.fineAmount) {
+                    message += ` Fine of ${formatCurrency(result.fineAmount)} applied.`;
+                }
+                
+                showAlert(message, 'success');
+                document.getElementById('returnForm').reset();
+                loadDashboard();
+            } catch (error) {
+                showAlert('Failed to return book: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadDashboard() {
+            try {
+                showLoading(true);
+                const [issues, fines] = await Promise.all([
+                    apiRequest('/Issues/active'),
+                    apiRequest('/Fines/all')
+                ]);
+
+                displayIssues(issues);
+                displayFines(fines);
+            } catch (error) {
+                showAlert('Failed to load dashboard: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function displayIssues(issues) {
+            const tbody = document.getElementById('issuesTable');
+            
+            if (issues.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No active issues</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = issues.map(issue => `
+                <tr>
+                    <td>${issue.issueId}</td>
+                    <td>${issue.bookTitle}</td>
+                    <td>${issue.userName}</td>
+                    <td>${formatDate(issue.issueDate)}</td>
+                    <td>${formatDate(issue.dueDate)}</td>
+                    <td><span class="badge badge-info">${issue.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function displayFines(fines) {
+            const tbody = document.getElementById('finesTable');
+            
+            if (fines.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No fines</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = fines.map(fine => `
+                <tr>
+                    <td>${fine.fineId}</td>
+                    <td>${fine.userName}</td>
+                    <td>${fine.bookTitle}</td>
+                    <td>${formatCurrency(fine.amount)}</td>
+                    <td><span class="badge badge-${fine.status === 'Paid' ? 'success' : 'warning'}">${fine.status}</span></td>
+                    <td>${formatDate(fine.createdDate)}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>
