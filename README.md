@@ -75,6 +75,29 @@ dotnet run
 http://localhost:5000
 ```
 
+### Troubleshooting
+
+#### NuGet Restore Issues
+If you encounter errors like "NU1301: Unable to load the service index for source https://api.nuget.org/v3/index.json":
+
+1. Check your internet connection
+2. If you're behind a corporate proxy, configure proxy settings via environment variables:
+   ```bash
+   # For Linux/macOS
+   export HTTP_PROXY=http://proxy-server:port
+   export HTTPS_PROXY=http://proxy-server:port
+   
+   # For Windows (Command Prompt)
+   set HTTP_PROXY=http://proxy-server:port
+   set HTTPS_PROXY=http://proxy-server:port
+   ```
+3. Clear the NuGet cache and retry:
+   ```bash
+   dotnet nuget locals all --clear
+   dotnet restore
+   ```
+4. The repository includes a NuGet.Config file with proper source configuration
+
 ### Default Admin Credentials
 - Email: `admin@library.com`
 - Password: `admin123`
