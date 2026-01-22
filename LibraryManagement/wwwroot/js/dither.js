@@ -12,11 +12,12 @@
 
     // ASCII characters for dithering (from light to dark)
     const ASCII_CHARS = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+    const CHAR_SPACING = 8; // Character spacing in pixels
     
     // Generate ASCII pattern
     function generateDitherPattern() {
-        const cols = Math.floor(window.innerWidth / 8);
-        const rows = Math.floor(window.innerHeight / 8);
+        const cols = Math.floor(window.innerWidth / CHAR_SPACING);
+        const rows = Math.floor(window.innerHeight / CHAR_SPACING);
         
         let pattern = '';
         for (let y = 0; y < rows; y++) {

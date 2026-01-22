@@ -76,10 +76,11 @@ if (!canvas) {
 
         function createShader(gl, type, source) {
             const shader = gl.createShader(type);
+            const shaderType = type === gl.VERTEX_SHADER ? 'vertex' : 'fragment';
             gl.shaderSource(shader, source);
             gl.compileShader(shader);
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+                console.error(`${shaderType} shader compile error:`, gl.getShaderInfoLog(shader));
                 gl.deleteShader(shader);
                 return null;
             }
