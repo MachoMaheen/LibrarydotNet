@@ -348,6 +348,7 @@ a:hover {
 .btn-primary:hover {
   border-color: var(--accent-gold);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  color: var(--white);
 }
 
 .btn-primary:hover::before {
@@ -376,6 +377,10 @@ a:hover {
   transform: translateX(-100%);
   transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: 0;
+}
+
+.btn-success:hover {
+  color: var(--white);
 }
 
 .btn-success:hover::before {
@@ -663,8 +668,13 @@ table tr:hover {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Badges */
@@ -778,10 +788,21 @@ footer {
   text-align: center;
 }
 
-.mt-1 { margin-top: 1rem; }
-.mt-2 { margin-top: 2rem; }
-.mb-1 { margin-bottom: 1rem; }
-.mb-2 { margin-bottom: 2rem; }
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.mt-2 {
+  margin-top: 2rem;
+}
+
+.mb-1 {
+  margin-bottom: 1rem;
+}
+
+.mb-2 {
+  margin-bottom: 2rem;
+}
 
 .hidden {
   display: none !important;

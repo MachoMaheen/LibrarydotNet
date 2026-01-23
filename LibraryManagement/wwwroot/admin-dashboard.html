@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Library Management System</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="container">
@@ -17,7 +19,7 @@
     <div class="container">
         <div class="dashboard">
             <h2 class="mb-2">Admin Dashboard</h2>
-            
+
             <div id="alert" class="alert"></div>
             <div id="loading" class="loading">
                 <div class="spinner"></div>
@@ -77,7 +79,7 @@
                         <label for="description">Description</label>
                         <textarea id="description" rows="3"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Add Book</button>
+                    <button type="submit" class="btn btn-primary"><span>Add Book</span></button>
                 </form>
             </div>
 
@@ -85,7 +87,7 @@
                 <div class="card-header">Book Inventory</div>
                 <div class="search-bar">
                     <input type="text" id="searchTerm" placeholder="Search books...">
-                    <button class="btn btn-primary" onclick="loadBooks()">Search</button>
+                    <button class="btn btn-primary" onclick="loadBooks()"><span>Search</span></button>
                 </div>
                 <div class="table-container">
                     <table>
@@ -111,11 +113,11 @@
         </div>
     </div>
 
-    <script src="/js/app.js"></script>
+    <!-- <script src="./js/app.js"></script> -->
     <script>
-        if (!requireRole('Admin')) {
-            // Will redirect
-        }
+        // if (!requireRole('Admin')) {
+        //     // Will redirect
+        // }
 
         async function handleAddBook(event) {
             event.preventDefault();
@@ -125,7 +127,7 @@
                 title: document.getElementById('title').value,
                 author: document.getElementById('author').value,
                 publisher: document.getElementById('publisher').value || null,
-                publishedYear: document.getElementById('publishedYear').value ? 
+                publishedYear: document.getElementById('publishedYear').value ?
                     parseInt(document.getElementById('publishedYear').value) : null,
                 category: document.getElementById('category').value || null,
                 totalCopies: parseInt(document.getElementById('totalCopies').value),
@@ -149,11 +151,11 @@
             try {
                 showLoading(true);
                 const searchTerm = document.getElementById('searchTerm').value;
-                
-                const url = searchTerm 
+
+                const url = searchTerm
                     ? `/Books/search?searchTerm=${encodeURIComponent(searchTerm)}`
                     : '/Books';
-                
+
                 const books = await apiRequest(url);
                 displayBooks(books);
                 updateStats(books);
@@ -166,7 +168,7 @@
 
         function displayBooks(books) {
             const tbody = document.getElementById('booksTable');
-            
+
             if (books.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center">No books found</td></tr>';
                 return;
@@ -181,7 +183,7 @@
                     <td>${book.totalCopies}</td>
                     <td>${book.availableCopies}</td>
                     <td>
-                        <button class="btn btn-sm btn-danger" onclick="deleteBook(${book.bookId})">Delete</button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteBook(${book.bookId})"><span>Delete</span></button>
                     </td>
                 </tr>
             `).join('');
@@ -215,4 +217,5 @@
         document.addEventListener('DOMContentLoaded', loadBooks);
     </script>
 </body>
+
 </html>

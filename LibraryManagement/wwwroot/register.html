@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Library Management System</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <!-- WebGL Background Canvas -->
     <canvas id="bg-canvas"></canvas>
-    
+
     <!-- Visual Effects -->
     <div class="noise-overlay"></div>
     <div class="dither-overlay"></div>
@@ -24,15 +26,15 @@
         <div class="container">
             <h1>📚 Library Management System</h1>
             <nav>
-                <a href="/">Home</a>
-                <a href="/login.html">Login</a>
+                <a href="./">Home</a>
+                <a href="./login.html">Login</a>
             </nav>
         </div>
     </nav>
 
     <div class="form-container">
         <h2 class="text-center mb-2">Register</h2>
-        
+
         <div id="alert" class="alert"></div>
         <div id="loading" class="loading">
             <div class="spinner"></div>
@@ -53,7 +55,8 @@
 
             <div class="form-group">
                 <label for="password">Password (min 6 characters) *</label>
-                <input type="password" id="password" name="password" required minlength="6" placeholder="Enter a secure password">
+                <input type="password" id="password" name="password" required minlength="6"
+                    placeholder="Enter a secure password">
                 <div class="error"></div>
             </div>
 
@@ -73,7 +76,7 @@
         </form>
 
         <p class="text-center mt-2">
-            Already have an account? <a href="/login.html">Login here</a>
+            Already have an account? <a href="./login.html">Login here</a>
         </p>
     </div>
 
@@ -83,9 +86,9 @@
         </div>
     </footer>
 
-    <script src="/js/app.js"></script>
-    <script src="/js/shader.js"></script>
-    <script src="/js/dither.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/shader.js"></script>
+    <script src="./js/dither.js"></script>
     <script>
         async function handleRegister(event) {
             event.preventDefault();
@@ -105,12 +108,12 @@
             try {
                 showLoading(true);
                 const response = await apiRequest('/Auth/register', 'POST', data);
-                
+
                 setAuth(response.token, response);
                 showAlert('Registration successful! Redirecting...', 'success');
-                
+
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = './';
                 }, 1000);
             } catch (error) {
                 showAlert(error.message || 'Registration failed. Please try again.', 'error');
@@ -121,8 +124,9 @@
 
         // Redirect if already logged in
         if (isAuthenticated()) {
-            window.location.href = '/';
+            window.location.href = './';
         }
     </script>
 </body>
+
 </html>

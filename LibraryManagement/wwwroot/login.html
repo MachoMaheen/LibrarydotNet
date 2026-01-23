@@ -1,15 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Library Management System</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
+
 <body>
     <!-- WebGL Background Canvas -->
     <canvas id="bg-canvas"></canvas>
-    
+
     <!-- Visual Effects -->
     <div class="noise-overlay"></div>
     <div class="dither-overlay"></div>
@@ -24,15 +26,15 @@
         <div class="container">
             <h1>📚 Library Management System</h1>
             <nav>
-                <a href="/">Home</a>
-                <a href="/register.html">Register</a>
+                <a href="./">Home</a>
+                <a href="./register.html">Register</a>
             </nav>
         </div>
     </nav>
 
     <div class="form-container">
         <h2 class="text-center mb-2">Login</h2>
-        
+
         <div id="alert" class="alert"></div>
         <div id="loading" class="loading">
             <div class="spinner"></div>
@@ -55,7 +57,7 @@
         </form>
 
         <p class="text-center mt-2">
-            Don't have an account? <a href="/register.html">Register here</a>
+            Don't have an account? <a href="./register.html">Register here</a>
         </p>
     </div>
 
@@ -65,9 +67,9 @@
         </div>
     </footer>
 
-    <script src="/js/app.js"></script>
-    <script src="/js/shader.js"></script>
-    <script src="/js/dither.js"></script>
+    <script src="./js/app.js"></script>
+    <script src="./js/shader.js"></script>
+    <script src="./js/dither.js"></script>
     <script>
         async function handleLogin(event) {
             event.preventDefault();
@@ -82,12 +84,12 @@
             try {
                 showLoading(true);
                 const response = await apiRequest('/Auth/login', 'POST', { email, password });
-                
+
                 setAuth(response.token, response);
                 showAlert('Login successful! Redirecting...', 'success');
-                
+
                 setTimeout(() => {
-                    window.location.href = '/';
+                    window.location.href = './';
                 }, 1000);
             } catch (error) {
                 showAlert(error.message || 'Login failed. Please check your credentials.', 'error');
@@ -98,8 +100,9 @@
 
         // Redirect if already logged in
         if (isAuthenticated()) {
-            window.location.href = '/';
+            window.location.href = './';
         }
     </script>
 </body>
+
 </html>
